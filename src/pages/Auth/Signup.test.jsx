@@ -43,6 +43,28 @@ jest.mock("../../utils/phone-codes-en", () => ({
 }));
 
 describe("SignUp", () => {
+  const fillRequiredFields = () => {
+    fireEvent.change(document.getElementById("firstName"), {
+      target: { value: "John" },
+    });
+
+    fireEvent.change(document.getElementById("lastName"), {
+      target: { value: "Doe" },
+    });
+
+    fireEvent.change(document.getElementById("email"), {
+      target: { value: "john@example.com" },
+    });
+
+    fireEvent.change(document.getElementById("password"), {
+      target: { value: "Password1!" },
+    });
+
+    fireEvent.change(document.getElementById("confirmPassword"), {
+      target: { value: "Password1!" },
+    });
+  };
+
   it("renders the country dropdown with ISO Alpha-2 options", () => {
     render(<SignUp />);
     const select = screen.getByRole("combobox", { name: /country/i });
@@ -67,5 +89,60 @@ describe("SignUp", () => {
     const select = screen.getByRole("combobox", { name: /country/i });
     fireEvent.change(select, { target: { value: "AR" } });
     expect(select.value).toBe("AR");
+  });
+  it("keeps Sign Up disabled when a mandatory field is missing", () => {
+    render(<SignUp />);
+
+    fireEvent.change(document.getElementById("firstName"), {
+      target: { value: "John" },
+    });
+
+    fireEvent.change(document.getElementById("lastName"), {
+      target: { value: "Doe" },
+    });
+
+    // Email is intentionally left empty.
+
+    fireEvent.change(document.getElementById("password"), {
+      target: { value: "Password1!" },
+    });
+
+    fireEvent.change(document.getElementById("confirmPassword"), {
+      target: { value: "Password1!" },
+    });
+
+    fireEvent.click(screen.getByRole("checkbox"));
+
+    const signUpButton = screen.getByRole("button", {
+      name: /sign up/i,
+    });
+
+    expect(signUpButton).toBeDisabled();
+  });
+
+  it("enables Sign Up when all mandatory fields are valid and TOS is accepted", () => {
+    render(<SignUp />);
+
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByRole("checkbox"));
+
+    const signUpButton = screen.getByRole("button", {
+      name: /sign up/i,
+    });
+
+    expect(signUpButton).toBeEnabled();
+  });
+
+  it("keeps Sign Up disabled when TOS is not accepted", () => {
+    render(<SignUp />);
+
+    fillRequiredFields();
+
+    const signUpButton = screen.getByRole("button", {
+      name: /sign up/i,
+    });
+
+    expect(signUpButton).toBeDisabled();
   });
 });
