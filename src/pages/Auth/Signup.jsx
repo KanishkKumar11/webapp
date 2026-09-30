@@ -75,11 +75,28 @@ const SignUp = () => {
     passwordValue,
   );
   const hasMinLength = passwordValue.length >= 8;
+
   const allRequirementsMet =
     hasNumber && hasUppercase && hasLowercase && hasSpecialChar && hasMinLength;
 
   const countries = CountryList().getData();
   const navigate = useNavigate();
+
+  const isFormValid =
+    signUpSchema.safeParse({
+      firstName,
+      lastName,
+      email: emailValue,
+      phone,
+      password: passwordValue,
+    }).success &&
+    confirmPasswordValue.length > 0 &&
+    confirmPasswordValue === passwordValue &&
+    Boolean(phone) &&
+    Boolean(PHONECODESEN[countryCode]?.secondary) &&
+    isValidPhoneNumber(`${PHONECODESEN[countryCode]?.secondary ?? ""}${phone}`);
+
+  const canSubmit = acceptedTOS && isFormValid;
 
   //name, email and phone number validation functions
   const validateName = (name) => /^[A-Za-z\s]+$/.test(name);
@@ -373,11 +390,13 @@ const SignUp = () => {
           </label>
         </div>
         <button
-          className={`my-4 py-2 rounded-xl text-white 
-    ${acceptedTOS ? "bg-blue-400 hover:bg-blue-500 cursor-pointer" : "bg-blue-400 opacity-50 cursor-not-allowed"}
-  `}
+          className={`my-4 py-2 rounded-xl text-white ${
+            canSubmit
+              ? "bg-blue-400 hover:bg-blue-500 cursor-pointer"
+              : "bg-blue-400 opacity-50 cursor-not-allowed"
+          }`}
           onClick={handleSignUp}
-          disabled={!acceptedTOS}
+          disabled={!canSubmit}
         >
           Sign up
         </button>
