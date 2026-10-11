@@ -107,8 +107,6 @@ const SignUp = () => {
     );
 
   const handleSignUp = async () => {
-    setErrors({ root: "Signup is currently disabled." });
-    return;
     try {
       setErrors({});
       setPhoneEmptyError("");
